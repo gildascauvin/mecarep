@@ -1,0 +1,180 @@
+{
+  "rabbit_version": "3.7.7",
+  "users": [
+    {
+      "name": "guest",
+      "password_hash": "/vY2amDzXJWB/0jOC5mq/cqpjYVI1kS5MfcH9DHEptD1LaAf",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "guest",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [
+    
+  ],
+  "parameters": [
+    
+  ],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "fashion-dev-rabbit"
+    }
+  ],
+  "policies": [
+    
+  ],
+  "queues": [
+    {
+      "name": "delayed_deindexing_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "indexing_exchange",
+        "x-dead-letter-routing-key": "",
+        "x-message-ttl": 2000
+      }
+    },
+    {
+      "name": "delayed_projection_to_update_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "replayed_projection_exchange",
+        "x-dead-letter-routing-key": "",
+        "x-message-ttl": 5000
+      }
+    },
+    {
+      "name": "indexing_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-overflow": "reject-publish"
+      }
+    },
+    {
+      "name": "replayed_projection_to_update_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        
+      }
+    },
+    {
+      "name": "projection_to_update_queue",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-max-priority": 10,
+        "x-overflow": "reject-publish"
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "projection_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {
+        
+      }
+    },
+    {
+      "name": "delayed_deindexing_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {
+        
+      }
+    },
+    {
+      "name": "replayed_projection_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": true,
+      "arguments": {
+        
+      }
+    },
+    {
+      "name": "indexing_exchange",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {
+        
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "source": "delayed_deindexing_exchange",
+      "vhost": "/",
+      "destination": "delayed_deindexing_queue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    },
+    {
+      "source": "indexing_exchange",
+      "vhost": "/",
+      "destination": "indexing_queue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    },
+    {
+      "source": "projection_exchange",
+      "vhost": "/",
+      "destination": "delayed_projection_to_update_queue",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    },
+    {
+      "source": "projection_exchange",
+      "vhost": "/",
+      "destination": "projection_to_update",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+  # theperfclub_rabbitmq:
+  #   build: ./build/rabbitmq/
+  #   container_name: theperfclub_rabbitmq
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: guest
+  #     RABBITMQ_DEFAULT_PASS: guest
+  #   ports:
+  #     - "4370:4369"
+  #     - "5678:5671"
+  #     - "5679:5672"
+  #     - "15672:15672"
+  #     - "25679:25672"
+  #   volumes:
+  #     - theperfclub_rabbit_volume:/var/lib/rabbitmq
+  #     - ./build/rabbitmq/queue-definitions.json:/etc/rabbitmq/queue-definitions.json
+  theperfclub_mysqldb:
+      build: ./build/mysql
+      container_name: theperfclub_mysqldb
+      restart: always
+      env_file:
+          - ./.env
+      environment:
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+          - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      volumes:
+          - ./build/mysql/data/:/var/lib/mysql
+      ports:
+          - "1106:3306"
+      expose:
+          - "1106"
+      command: --default-authentication-plugin=mysql_native_password
+      networks:
+          - overlay
+  theperfclub_nginx:
+      build: ./build/nginx
+      container_name: theperfclub_nginx
+      restart: always
+      ports:
+          - "8010:81" # Api
+      networks:
+          - overlay
+  theperfclub_phpfpm:
+      build: ./build/phpfpm
+      container_name: theperfclub_phpfpm
+      hostname: theperfclub_phpfpm
+      restart: always
+      # working_dir: /www
+      links:
+        - maildev
+      volumes:
+          - ./src/api:/var/www/api
+          - ./src/website:/var/www/website
+      networks:
+          - overlay
+      ports:
+        - 587:587
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 25:25
+      - 1080:80
+networks:
+  overlay:
+volumes:
+  theperfclub_rabbit_volume:
